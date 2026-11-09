@@ -1,0 +1,211 @@
+{
+  "entities": {
+    "PlatformUser": {
+      "title": "Platform User",
+      "description": "User profile linking authenticated Google UID to church and role",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Google UID" },
+        "email": { "type": "string", "description": "User email address" },
+        "displayName": { "type": "string", "description": "User display name" },
+        "churchId": { "type": "string", "description": "Church ID the user belongs to" },
+        "role": { "type": "string", "description": "Role: OWNER, ADMIN, PASTOR, DEPT_LEADER, MEMBERSHIP_OFFICER, ATTENDANCE_OFFICER, READ_ONLY" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp via FieldValue.serverTimestamp()" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Update timestamp via FieldValue.serverTimestamp()" }
+      },
+      "required": ["userId", "email", "createdAt"]
+    },
+    "Church": {
+      "title": "Church",
+      "description": "Church organization tenant entity",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Church organization name" },
+        "ownerUid": { "type": "string", "description": "UID of church owner administrator" },
+        "denomination": { "type": "string", "description": "Denomination or affiliation" },
+        "country": { "type": "string", "description": "Country of operation" },
+        "state": { "type": "string", "description": "State or Province" },
+        "city": { "type": "string", "description": "City" },
+        "address": { "type": "string", "description": "Physical street address" },
+        "email": { "type": "string", "description": "Church official contact email" },
+        "phone": { "type": "string", "description": "Church official contact phone" },
+        "pastor": { "type": "string", "description": "Senior pastor or leader name" },
+        "sizeCategory": { "type": "string", "description": "Church size category" },
+        "subscriptionTier": { "type": "string", "description": "FREE, STANDARD, PREMIUM" },
+        "subscriptionStatus": { "type": "string", "description": "ACTIVE, TRIAL, EXPIRED, SUSPENDED" },
+        "dateFormat": { "type": "string", "description": "Date format preference" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Update timestamp" }
+      },
+      "required": ["name", "ownerUid", "country", "createdAt"]
+    },
+    "ChurchMember": {
+      "title": "Church Member",
+      "description": "Registered member in church database",
+      "type": "object",
+      "properties": {
+        "churchId": { "type": "string", "description": "Church tenant ID" },
+        "memberId": { "type": "string", "description": "Human readable member ID code" },
+        "firstName": { "type": "string", "description": "First name" },
+        "middleName": { "type": "string", "description": "Middle name" },
+        "lastName": { "type": "string", "description": "Last name" },
+        "photoUrl": { "type": "string", "description": "Member profile photo URL" },
+        "gender": { "type": "string", "description": "Gender" },
+        "dateOfBirth": { "type": "string", "description": "Date of birth (YYYY-MM-DD)" },
+        "maritalStatus": { "type": "string", "description": "Marital status" },
+        "occupation": { "type": "string", "description": "Occupation" },
+        "residentialAddress": { "type": "string", "description": "Residential address" },
+        "country": { "type": "string", "description": "Country" },
+        "state": { "type": "string", "description": "State" },
+        "city": { "type": "string", "description": "City" },
+        "nationality": { "type": "string", "description": "Nationality" },
+        "phone": { "type": "string", "description": "Primary phone" },
+        "alternatePhone": { "type": "string", "description": "Alternate phone" },
+        "email": { "type": "string", "description": "Email address" },
+        "category": { "type": "string", "description": "Membership category" },
+        "status": { "type": "string", "description": "Active, Inactive, Visiting, Transferred, Deceased, Archived" },
+        "dateFirstVisited": { "type": "string", "description": "Date first visited" },
+        "dateJoined": { "type": "string", "description": "Date joined church" },
+        "baptismStatus": { "type": "string", "description": "Baptism status" },
+        "baptismDate": { "type": "string", "description": "Baptism date" },
+        "previousChurch": { "type": "string", "description": "Previous church" },
+        "invitedBy": { "type": "string", "description": "Invited by person name" },
+        "assignedLeader": { "type": "string", "description": "Assigned pastor or leader" },
+        "departments": { "type": "array", "description": "List of department names or IDs" },
+        "ministries": { "type": "array", "description": "List of ministries" },
+        "smallGroup": { "type": "string", "description": "Small group or fellowship" },
+        "notes": { "type": "string", "description": "Restricted administrative notes" },
+        "createdBy": { "type": "string", "description": "UID of registrar" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Update timestamp" }
+      },
+      "required": ["churchId", "firstName", "lastName", "category", "status", "createdAt"]
+    },
+    "Visitor": {
+      "title": "Visitor",
+      "description": "Visitor and follow-up tracking",
+      "type": "object",
+      "properties": {
+        "churchId": { "type": "string", "description": "Church tenant ID" },
+        "name": { "type": "string", "description": "Visitor full name" },
+        "phone": { "type": "string", "description": "Phone number" },
+        "email": { "type": "string", "description": "Email address" },
+        "dateVisited": { "type": "string", "description": "Date of visit" },
+        "serviceAttended": { "type": "string", "description": "Service attended" },
+        "invitedBy": { "type": "string", "description": "Invited by" },
+        "followUpStatus": { "type": "string", "description": "Not contacted, Contacted, Invited again, Became a member, Not interested" },
+        "followUpNotes": { "type": "string", "description": "Follow-up notes" },
+        "assignedWorker": { "type": "string", "description": "Assigned follow-up worker" },
+        "convertedToMemberId": { "type": "string", "description": "Member ID if converted" },
+        "createdBy": { "type": "string", "description": "Registrar UID" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Update timestamp" }
+      },
+      "required": ["churchId", "name", "dateVisited", "followUpStatus", "createdAt"]
+    },
+    "Department": {
+      "title": "Department",
+      "description": "Church department, ministry, or group",
+      "type": "object",
+      "properties": {
+        "churchId": { "type": "string", "description": "Church tenant ID" },
+        "name": { "type": "string", "description": "Department name" },
+        "description": { "type": "string", "description": "Description" },
+        "leaderId": { "type": "string", "description": "Leader member ID" },
+        "leaderName": { "type": "string", "description": "Leader full name" },
+        "assistantLeaderName": { "type": "string", "description": "Assistant leader name" },
+        "active": { "type": "boolean", "description": "Whether active" },
+        "memberCount": { "type": "integer", "description": "Cached member count" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Update timestamp" }
+      },
+      "required": ["churchId", "name", "createdAt"]
+    },
+    "AttendanceSession": {
+      "title": "Attendance Session",
+      "description": "Service or meeting attendance session",
+      "type": "object",
+      "properties": {
+        "churchId": { "type": "string", "description": "Church tenant ID" },
+        "serviceType": { "type": "string", "description": "Sunday service, Midweek, etc." },
+        "date": { "type": "string", "description": "Session date (YYYY-MM-DD)" },
+        "title": { "type": "string", "description": "Session title / topic" },
+        "departmentId": { "type": "string", "description": "Optional department ID" },
+        "departmentName": { "type": "string", "description": "Optional department name" },
+        "recordedBy": { "type": "string", "description": "Recorded by user UID" },
+        "totalPresent": { "type": "integer", "description": "Present member count" },
+        "totalAbsent": { "type": "integer", "description": "Absent member count" },
+        "totalVisitors": { "type": "integer", "description": "Visitor count" },
+        "notes": { "type": "string", "description": "Session notes" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Update timestamp" }
+      },
+      "required": ["churchId", "serviceType", "date", "createdAt"]
+    },
+    "AttendanceRecord": {
+      "title": "Attendance Record",
+      "description": "Individual member attendance in session",
+      "type": "object",
+      "properties": {
+        "churchId": { "type": "string", "description": "Church tenant ID" },
+        "sessionId": { "type": "string", "description": "Attendance session document ID" },
+        "memberId": { "type": "string", "description": "Member document ID" },
+        "memberName": { "type": "string", "description": "Member name for fast scanning" },
+        "status": { "type": "string", "description": "Present, Absent, Excused" },
+        "notes": { "type": "string", "description": "Record notes" },
+        "recordedAt": { "type": "string", "format": "date-time", "description": "Record timestamp" }
+      },
+      "required": ["churchId", "sessionId", "memberId", "status"]
+    },
+    "AuditLog": {
+      "title": "Audit Log",
+      "description": "Immutable security and activity audit entry",
+      "type": "object",
+      "properties": {
+        "churchId": { "type": "string", "description": "Church tenant ID" },
+        "action": { "type": "string", "description": "Action performed (e.g. MEMBER_CREATED, ROLE_CHANGED)" },
+        "entityType": { "type": "string", "description": "Target entity type" },
+        "entityId": { "type": "string", "description": "Target entity ID" },
+        "performedBy": { "type": "string", "description": "UID of actor" },
+        "performedByName": { "type": "string", "description": "Name of actor" },
+        "details": { "type": "string", "description": "Audit description" },
+        "timestamp": { "type": "string", "format": "date-time", "description": "Event timestamp" }
+      },
+      "required": ["churchId", "action", "performedBy", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/platformUsers/{userId}": {
+      "schema": "PlatformUser",
+      "description": "User profile mapping Google UID to church and active role"
+    },
+    "/churches/{churchId}": {
+      "schema": "Church",
+      "description": "Church organizational profile and tenant root"
+    },
+    "/churches/{churchId}/members/{memberId}": {
+      "schema": "ChurchMember",
+      "description": "Church members directory"
+    },
+    "/churches/{churchId}/visitors/{visitorId}": {
+      "schema": "Visitor",
+      "description": "Church visitors directory"
+    },
+    "/churches/{churchId}/departments/{departmentId}": {
+      "schema": "Department",
+      "description": "Church departments and ministries"
+    },
+    "/churches/{churchId}/attendanceSessions/{sessionId}": {
+      "schema": "AttendanceSession",
+      "description": "Attendance sessions"
+    },
+    "/churches/{churchId}/attendanceRecords/{recordId}": {
+      "schema": "AttendanceRecord",
+      "description": "Attendance records per session"
+    },
+    "/churches/{churchId}/auditLogs/{logId}": {
+      "schema": "AuditLog",
+      "description": "Church security audit logs"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "ChurchBase",
+  "description": "Professional church membership management application for tracking members, attendance, departments, visitors, leadership, and church reports.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

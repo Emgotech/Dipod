@@ -1,0 +1,275 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helper Functions ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // --- Validation Helpers ---
+    function isValidPlatformUser(data) {
+      return data.userId is string && data.userId.size() > 0 && data.userId.size() <= 128 &&
+             data.email is string && data.email.size() <= 200 &&
+             (!('displayName' in data) || data.displayName == null || (data.displayName is string && data.displayName.size() <= 150)) &&
+             (!('churchId' in data) || data.churchId == null || (data.churchId is string && data.churchId.size() <= 128)) &&
+             (!('role' in data) || data.role == null || (data.role is string && data.role.size() <= 50)) &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             (!('updatedAt' in data) || data.updatedAt == null || (data.updatedAt is timestamp && data.updatedAt <= request.time));
+    }
+
+    function isValidChurch(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() <= 200 &&
+             data.ownerUid is string && data.ownerUid.size() > 0 && data.ownerUid.size() <= 128 &&
+             data.country is string && data.country.size() > 0 && data.country.size() <= 100 &&
+             (!('denomination' in data) || data.denomination == null || (data.denomination is string && data.denomination.size() <= 100)) &&
+             (!('state' in data) || data.state == null || (data.state is string && data.state.size() <= 100)) &&
+             (!('city' in data) || data.city == null || (data.city is string && data.city.size() <= 100)) &&
+             (!('address' in data) || data.address == null || (data.address is string && data.address.size() <= 300)) &&
+             (!('email' in data) || data.email == null || (data.email is string && data.email.size() <= 150)) &&
+             (!('phone' in data) || data.phone == null || (data.phone is string && data.phone.size() <= 50)) &&
+             (!('pastor' in data) || data.pastor == null || (data.pastor is string && data.pastor.size() <= 150)) &&
+             (!('sizeCategory' in data) || data.sizeCategory == null || (data.sizeCategory is string && data.sizeCategory.size() <= 50)) &&
+             (!('subscriptionTier' in data) || data.subscriptionTier == null || (data.subscriptionTier is string && data.subscriptionTier.size() <= 50)) &&
+             (!('subscriptionStatus' in data) || data.subscriptionStatus == null || (data.subscriptionStatus is string && data.subscriptionStatus.size() <= 50)) &&
+             (!('dateFormat' in data) || data.dateFormat == null || (data.dateFormat is string && data.dateFormat.size() <= 50)) &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             (!('updatedAt' in data) || data.updatedAt == null || (data.updatedAt is timestamp && data.updatedAt <= request.time));
+    }
+
+    function isValidMember(data) {
+      return data.churchId is string && data.churchId.size() > 0 && data.churchId.size() <= 128 &&
+             data.firstName is string && data.firstName.size() > 0 && data.firstName.size() <= 100 &&
+             data.lastName is string && data.lastName.size() > 0 && data.lastName.size() <= 100 &&
+             data.category is string && data.category.size() > 0 && data.category.size() <= 100 &&
+             data.status is string && data.status.size() > 0 && data.status.size() <= 50 &&
+             (!('middleName' in data) || data.middleName == null || (data.middleName is string && data.middleName.size() <= 100)) &&
+             (!('memberId' in data) || data.memberId == null || (data.memberId is string && data.memberId.size() <= 50)) &&
+             (!('photoUrl' in data) || data.photoUrl == null || (data.photoUrl is string && data.photoUrl.size() <= 1000)) &&
+             (!('gender' in data) || data.gender == null || (data.gender is string && data.gender.size() <= 30)) &&
+             (!('dateOfBirth' in data) || data.dateOfBirth == null || (data.dateOfBirth is string && data.dateOfBirth.size() <= 50)) &&
+             (!('maritalStatus' in data) || data.maritalStatus == null || (data.maritalStatus is string && data.maritalStatus.size() <= 50)) &&
+             (!('occupation' in data) || data.occupation == null || (data.occupation is string && data.occupation.size() <= 100)) &&
+             (!('residentialAddress' in data) || data.residentialAddress == null || (data.residentialAddress is string && data.residentialAddress.size() <= 300)) &&
+             (!('country' in data) || data.country == null || (data.country is string && data.country.size() <= 100)) &&
+             (!('state' in data) || data.state == null || (data.state is string && data.state.size() <= 100)) &&
+             (!('city' in data) || data.city == null || (data.city is string && data.city.size() <= 100)) &&
+             (!('nationality' in data) || data.nationality == null || (data.nationality is string && data.nationality.size() <= 100)) &&
+             (!('phone' in data) || data.phone == null || (data.phone is string && data.phone.size() <= 50)) &&
+             (!('alternatePhone' in data) || data.alternatePhone == null || (data.alternatePhone is string && data.alternatePhone.size() <= 50)) &&
+             (!('email' in data) || data.email == null || (data.email is string && data.email.size() <= 150)) &&
+             (!('dateFirstVisited' in data) || data.dateFirstVisited == null || (data.dateFirstVisited is string && data.dateFirstVisited.size() <= 50)) &&
+             (!('dateJoined' in data) || data.dateJoined == null || (data.dateJoined is string && data.dateJoined.size() <= 50)) &&
+             (!('baptismStatus' in data) || data.baptismStatus == null || (data.baptismStatus is string && data.baptismStatus.size() <= 50)) &&
+             (!('baptismDate' in data) || data.baptismDate == null || (data.baptismDate is string && data.baptismDate.size() <= 50)) &&
+             (!('previousChurch' in data) || data.previousChurch == null || (data.previousChurch is string && data.previousChurch.size() <= 200)) &&
+             (!('invitedBy' in data) || data.invitedBy == null || (data.invitedBy is string && data.invitedBy.size() <= 150)) &&
+             (!('assignedLeader' in data) || data.assignedLeader == null || (data.assignedLeader is string && data.assignedLeader.size() <= 150)) &&
+             (!('departments' in data) || data.departments == null || (data.departments is list && data.departments.size() <= 30)) &&
+             (!('ministries' in data) || data.ministries == null || (data.ministries is list && data.ministries.size() <= 30)) &&
+             (!('smallGroup' in data) || data.smallGroup == null || (data.smallGroup is string && data.smallGroup.size() <= 100)) &&
+             (!('notes' in data) || data.notes == null || (data.notes is string && data.notes.size() <= 3000)) &&
+             (!('createdBy' in data) || data.createdBy == null || (data.createdBy is string && data.createdBy.size() <= 128)) &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             (!('updatedAt' in data) || data.updatedAt == null || (data.updatedAt is timestamp && data.updatedAt <= request.time));
+    }
+
+    function isValidVisitor(data) {
+      return data.churchId is string && data.churchId.size() > 0 && data.churchId.size() <= 128 &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 150 &&
+             data.dateVisited is string && data.dateVisited.size() > 0 && data.dateVisited.size() <= 50 &&
+             data.followUpStatus is string && data.followUpStatus.size() > 0 && data.followUpStatus.size() <= 50 &&
+             (!('phone' in data) || data.phone == null || (data.phone is string && data.phone.size() <= 50)) &&
+             (!('email' in data) || data.email == null || (data.email is string && data.email.size() <= 150)) &&
+             (!('serviceAttended' in data) || data.serviceAttended == null || (data.serviceAttended is string && data.serviceAttended.size() <= 100)) &&
+             (!('invitedBy' in data) || data.invitedBy == null || (data.invitedBy is string && data.invitedBy.size() <= 150)) &&
+             (!('followUpNotes' in data) || data.followUpNotes == null || (data.followUpNotes is string && data.followUpNotes.size() <= 2000)) &&
+             (!('assignedWorker' in data) || data.assignedWorker == null || (data.assignedWorker is string && data.assignedWorker.size() <= 150)) &&
+             (!('convertedToMemberId' in data) || data.convertedToMemberId == null || (data.convertedToMemberId is string && data.convertedToMemberId.size() <= 128)) &&
+             (!('createdBy' in data) || data.createdBy == null || (data.createdBy is string && data.createdBy.size() <= 128)) &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             (!('updatedAt' in data) || data.updatedAt == null || (data.updatedAt is timestamp && data.updatedAt <= request.time));
+    }
+
+    function isValidDepartment(data) {
+      return data.churchId is string && data.churchId.size() > 0 && data.churchId.size() <= 128 &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             (!('description' in data) || data.description == null || (data.description is string && data.description.size() <= 1000)) &&
+             (!('leaderId' in data) || data.leaderId == null || (data.leaderId is string && data.leaderId.size() <= 128)) &&
+             (!('leaderName' in data) || data.leaderName == null || (data.leaderName is string && data.leaderName.size() <= 150)) &&
+             (!('assistantLeaderName' in data) || data.assistantLeaderName == null || (data.assistantLeaderName is string && data.assistantLeaderName.size() <= 150)) &&
+             (!('active' in data) || data.active is bool) &&
+             (!('memberCount' in data) || data.memberCount is int) &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             (!('updatedAt' in data) || data.updatedAt == null || (data.updatedAt is timestamp && data.updatedAt <= request.time));
+    }
+
+    function isValidAttendanceSession(data) {
+      return data.churchId is string && data.churchId.size() > 0 && data.churchId.size() <= 128 &&
+             data.serviceType is string && data.serviceType.size() > 0 && data.serviceType.size() <= 100 &&
+             data.date is string && data.date.size() > 0 && data.date.size() <= 50 &&
+             (!('title' in data) || data.title == null || (data.title is string && data.title.size() <= 200)) &&
+             (!('departmentId' in data) || data.departmentId == null || (data.departmentId is string && data.departmentId.size() <= 128)) &&
+             (!('departmentName' in data) || data.departmentName == null || (data.departmentName is string && data.departmentName.size() <= 100)) &&
+             (!('recordedBy' in data) || data.recordedBy == null || (data.recordedBy is string && data.recordedBy.size() <= 128)) &&
+             (!('totalPresent' in data) || data.totalPresent is int) &&
+             (!('totalAbsent' in data) || data.totalAbsent is int) &&
+             (!('totalVisitors' in data) || data.totalVisitors is int) &&
+             (!('notes' in data) || data.notes == null || (data.notes is string && data.notes.size() <= 2000)) &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             (!('updatedAt' in data) || data.updatedAt == null || (data.updatedAt is timestamp && data.updatedAt <= request.time));
+    }
+
+    function isValidAttendanceRecord(data) {
+      return data.churchId is string && data.churchId.size() > 0 && data.churchId.size() <= 128 &&
+             data.sessionId is string && data.sessionId.size() > 0 && data.sessionId.size() <= 128 &&
+             data.memberId is string && data.memberId.size() > 0 && data.memberId.size() <= 128 &&
+             data.status is string && data.status.size() > 0 && data.status.size() <= 50 &&
+             (!('memberName' in data) || data.memberName == null || (data.memberName is string && data.memberName.size() <= 150)) &&
+             (!('notes' in data) || data.notes == null || (data.notes is string && data.notes.size() <= 500)) &&
+             (!('recordedAt' in data) || data.recordedAt is timestamp);
+    }
+
+    function isValidAuditLog(data) {
+      return data.churchId is string && data.churchId.size() > 0 && data.churchId.size() <= 128 &&
+             data.action is string && data.action.size() > 0 && data.action.size() <= 100 &&
+             data.performedBy is string && data.performedBy.size() > 0 && data.performedBy.size() <= 128 &&
+             (!('entityType' in data) || data.entityType == null || (data.entityType is string && data.entityType.size() <= 100)) &&
+             (!('entityId' in data) || data.entityId == null || (data.entityId is string && data.entityId.size() <= 128)) &&
+             (!('performedByName' in data) || data.performedByName == null || (data.performedByName is string && data.performedByName.size() <= 150)) &&
+             (!('details' in data) || data.details == null || (data.details is string && data.details.size() <= 3000)) &&
+             data.timestamp is timestamp && data.timestamp <= request.time;
+    }
+
+    // --- Platform Users ---
+    match /platformUsers/{userId} {
+      allow get: if isSignedIn() && request.auth.uid == userId;
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() &&
+                       request.auth.uid == userId &&
+                       incoming().userId == request.auth.uid &&
+                       isValidPlatformUser(incoming());
+      allow update: if isSignedIn() &&
+                       request.auth.uid == userId &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       isValidPlatformUser(incoming());
+      allow delete: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    // --- Churches Root ---
+    match /churches/{churchId} {
+      allow get: if isSignedIn();
+      allow list: if isSignedIn();
+      allow create: if isSignedIn() &&
+                       incoming().ownerUid == request.auth.uid &&
+                       isValidChurch(incoming());
+      allow update: if isSignedIn() &&
+                       incoming().ownerUid == existing().ownerUid &&
+                       incoming().createdAt == existing().createdAt &&
+                       isValidChurch(incoming());
+      allow delete: if isSignedIn() && existing().ownerUid == request.auth.uid;
+
+      // --- Members Subcollection ---
+      match /members/{memberId} {
+        allow get, list: if isSignedIn() && isValidId(churchId);
+        allow create: if isSignedIn() &&
+                         isValidId(churchId) &&
+                         incoming().churchId == churchId &&
+                         isValidMember(incoming());
+        allow update: if isSignedIn() &&
+                         isValidId(churchId) &&
+                         incoming().churchId == existing().churchId &&
+                         incoming().createdAt == existing().createdAt &&
+                         isValidMember(incoming());
+        allow delete: if isSignedIn() && isValidId(churchId);
+      }
+
+      // --- Visitors Subcollection ---
+      match /visitors/{visitorId} {
+        allow get, list: if isSignedIn() && isValidId(churchId);
+        allow create: if isSignedIn() &&
+                         isValidId(churchId) &&
+                         incoming().churchId == churchId &&
+                         isValidVisitor(incoming());
+        allow update: if isSignedIn() &&
+                         isValidId(churchId) &&
+                         incoming().churchId == existing().churchId &&
+                         incoming().createdAt == existing().createdAt &&
+                         isValidVisitor(incoming());
+        allow delete: if isSignedIn() && isValidId(churchId);
+      }
+
+      // --- Departments Subcollection ---
+      match /departments/{departmentId} {
+        allow get, list: if isSignedIn() && isValidId(churchId);
+        allow create: if isSignedIn() &&
+                         isValidId(churchId) &&
+                         incoming().churchId == churchId &&
+                         isValidDepartment(incoming());
+        allow update: if isSignedIn() &&
+                         isValidId(churchId) &&
+                         incoming().churchId == existing().churchId &&
+                         incoming().createdAt == existing().createdAt &&
+                         isValidDepartment(incoming());
+        allow delete: if isSignedIn() && isValidId(churchId);
+      }
+
+      // --- Attendance Sessions Subcollection ---
+      match /attendanceSessions/{sessionId} {
+        allow get, list: if isSignedIn() && isValidId(churchId);
+        allow create: if isSignedIn() &&
+                         isValidId(churchId) &&
+                         incoming().churchId == churchId &&
+                         isValidAttendanceSession(incoming());
+        allow update: if isSignedIn() &&
+                         isValidId(churchId) &&
+                         incoming().churchId == existing().churchId &&
+                         incoming().createdAt == existing().createdAt &&
+                         isValidAttendanceSession(incoming());
+        allow delete: if isSignedIn() && isValidId(churchId);
+      }
+
+      // --- Attendance Records Subcollection ---
+      match /attendanceRecords/{recordId} {
+        allow get, list: if isSignedIn() && isValidId(churchId);
+        allow create: if isSignedIn() &&
+                         isValidId(churchId) &&
+                         incoming().churchId == churchId &&
+                         isValidAttendanceRecord(incoming());
+        allow update: if isSignedIn() &&
+                         isValidId(churchId) &&
+                         incoming().churchId == existing().churchId &&
+                         isValidAttendanceRecord(incoming());
+        allow delete: if isSignedIn() && isValidId(churchId);
+      }
+
+      // --- Audit Logs Subcollection (Append-only) ---
+      match /auditLogs/{logId} {
+        allow get, list: if isSignedIn() && isValidId(churchId);
+        allow create: if isSignedIn() &&
+                         isValidId(churchId) &&
+                         incoming().churchId == churchId &&
+                         isValidAuditLog(incoming());
+        allow update, delete: if false; // Append-only audit logs!
+      }
+    }
+  }
+}
